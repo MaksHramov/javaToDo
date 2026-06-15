@@ -55,6 +55,7 @@ public class MainController {
                     new Label(work.title()),
                     new Label(work.description() == null ? "" : work.description())
             );
+            card.getStyleClass().add("task-card");
             if (work.dueDate() != null) {
                 card.getChildren().add(new Label("Срок: " + work.dueDate()));
             }

@@ -1,0 +1,108 @@
+/* Moonshine PurplePalette: primary #7357ff, info blue, dark body ~274° */
+
+.root {
+    -fx-background-color: #1a1f35;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+.sidebar {
+    -fx-background-color: #141827;
+}
+
+.label {
+    -fx-text-fill: #f8fafc;
+}
+
+.button {
+    -fx-background-color: #7357ff;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 8;
+    -fx-padding: 8 16 8 16;
+}
+
+.button:hover {
+    -fx-background-color: #6041f5;
+}
+
+.button:pressed {
+    -fx-background-color: #5235e0;
+}
+
+.task-card {
+    -fx-background-color: #252a40;
+    -fx-background-radius: 10;
+    -fx-padding: 14;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+}
+
+.text-field,
+.text-area {
+    -fx-control-inner-background: #2f3548;
+    -fx-text-fill: #f8fafc;
+    -fx-prompt-text-fill: #94a3b8;
+    -fx-background-color: #2f3548;
+    -fx-background-radius: 8;
+    -fx-highlight-fill: #7357ff;
+    -fx-highlight-text-fill: #ffffff;
+}
+
+.text-field:focused,
+.text-area:focused {
+    -fx-border-color: #4f7df5;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+}
+
+.combo-box {
+    -fx-background-color: #2f3548;
+    -fx-background-radius: 8;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #f8fafc;
+    -fx-background-color: #2f3548;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #252a40;
+}
+
+.combo-box-popup .list-cell {
+    -fx-text-fill: #f8fafc;
+    -fx-background-color: #252a40;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #7357ff;
+    -fx-text-fill: #ffffff;
+}
+
+.date-picker {
+    -fx-background-color: #2f3548;
+    -fx-background-radius: 8;
+}
+
+.date-picker .text-field {
+    -fx-control-inner-background: #2f3548;
+    -fx-text-fill: #f8fafc;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:vertical,
+.scroll-bar:horizontal {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #7357ff;
+    -fx-background-radius: 6;
+}
