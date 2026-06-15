@@ -14,7 +14,7 @@ public class WorkDao {
         try (var conn = DatabaseConnection.getConnection();
              var stmt = conn.createStatement();
              var rs = stmt.executeQuery(
-                     "SELECT id, title, description, due_date, created_at FROM works ORDER BY id DESC")) {
+                     "SELECT id, title, description, due_date, created_at, status FROM works ORDER BY id DESC")) {
             List<Work> works = new ArrayList<>();
             while (rs.next()) {
                 works.add(fromRow(rs));
@@ -48,13 +48,25 @@ public class WorkDao {
         }
     }
 
+    public static void updateStatus(long id, String status) {
+        try (var conn = DatabaseConnection.getConnection();
+             var stmt = conn.prepareStatement("UPDATE works SET status = ? WHERE id = ?")) {
+            stmt.setString(1, status);
+            stmt.setLong(2, id);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static Work fromRow(ResultSet rs) throws Exception {
         return new Work(
                 rs.getLong("id"),
                 rs.getString("title"),
                 rs.getString("description"),
                 rs.getObject("due_date", LocalDate.class),
-                rs.getTimestamp("created_at").toLocalDateTime()
+                rs.getTimestamp("created_at").toLocalDateTime(),
+                rs.getString("status")
         );
     }
 }

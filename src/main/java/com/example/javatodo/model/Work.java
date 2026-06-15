@@ -8,6 +8,7 @@ public record Work(
         String title,
         String description,
         LocalDate dueDate,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String status
 ) {
 }

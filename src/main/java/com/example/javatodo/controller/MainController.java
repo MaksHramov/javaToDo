@@ -2,11 +2,14 @@ package com.example.javatodo.controller;
 
 import com.example.javatodo.dao.WorkDao;
 import com.example.javatodo.model.Work;
+import com.example.javatodo.model.WorkStatus;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -58,6 +61,18 @@ public class MainController {
             if (work.createdAt() != null) {
                 card.getChildren().add(new Label("Создано: " + work.createdAt()));
             }
+
+            ComboBox<String> statusBox = new ComboBox<>(FXCollections.observableArrayList(
+                    "Новая", "В работе", "На проверке", "На доработке", "Завершено"
+            ));
+            statusBox.setValue(WorkStatus.fromCode(work.status()).label());
+            statusBox.setOnAction(e -> WorkDao.updateStatus(
+                    work.id(),
+                    WorkStatus.fromLabel(statusBox.getValue()).code()
+            ));
+            card.getChildren().add(new Label("Статус:"));
+            card.getChildren().add(statusBox);
+
             Button deleteButton = new Button("Удалить");
             deleteButton.setOnAction(e -> {
                 WorkDao.delete(work.id());
