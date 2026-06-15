@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
@@ -57,6 +58,12 @@ public class MainController {
             if (work.createdAt() != null) {
                 card.getChildren().add(new Label("Создано: " + work.createdAt()));
             }
+            Button deleteButton = new Button("Удалить");
+            deleteButton.setOnAction(e -> {
+                WorkDao.delete(work.id());
+                loadTasks();
+            });
+            card.getChildren().add(deleteButton);
             tasksContainer.getChildren().add(card);
         }
     }

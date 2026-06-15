@@ -38,6 +38,16 @@ public class WorkDao {
         }
     }
 
+    public static void delete(long id) {
+        try (var conn = DatabaseConnection.getConnection();
+             var stmt = conn.prepareStatement("DELETE FROM works WHERE id = ?")) {
+            stmt.setLong(1, id);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static Work fromRow(ResultSet rs) throws Exception {
         return new Work(
                 rs.getLong("id"),
