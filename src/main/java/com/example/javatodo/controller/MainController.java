@@ -1,8 +1,9 @@
 package com.example.javatodo.controller;
 
-import com.example.javatodo.dao.WorkDao;
+import com.example.javatodo.factory.DataSourceFactoryProvider;
 import com.example.javatodo.model.Work;
 import com.example.javatodo.model.WorkStatus;
+import com.example.javatodo.service.WorkService;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -23,6 +24,8 @@ public class MainController {
     @FXML
     private FlowPane tasksContainer;
 
+    private final WorkService workService = new WorkService(DataSourceFactoryProvider.getWorkDao());
+
     @FXML
     public void initialize() {
         loadTasks();
@@ -35,6 +38,7 @@ public class MainController {
             Parent root = loader.load();
 
             AddTaskController controller = loader.getController();
+            controller.setWorkService(workService);
             controller.setOnSaved(this::loadTasks);
 
             Stage dialog = new Stage();
@@ -50,7 +54,7 @@ public class MainController {
 
     private void loadTasks() {
         tasksContainer.getChildren().clear();
-        for (Work work : WorkDao.findAll()) {
+        for (Work work : workService.getAllWorks()) {
             VBox card = new VBox(5,
                     new Label(work.title()),
                     new Label(work.description() == null ? "" : work.description())
@@ -67,7 +71,7 @@ public class MainController {
                     "Новая", "В работе", "На проверке", "На доработке", "Завершено"
             ));
             statusBox.setValue(WorkStatus.fromCode(work.status()).label());
-            statusBox.setOnAction(e -> WorkDao.updateStatus(
+            statusBox.setOnAction(e -> workService.updateStatus(
                     work.id(),
                     WorkStatus.fromLabel(statusBox.getValue()).code()
             ));
@@ -76,7 +80,7 @@ public class MainController {
 
             Button deleteButton = new Button("Удалить");
             deleteButton.setOnAction(e -> {
-                WorkDao.delete(work.id());
+                workService.deleteWork(work.id());
                 loadTasks();
             });
             card.getChildren().add(deleteButton);
