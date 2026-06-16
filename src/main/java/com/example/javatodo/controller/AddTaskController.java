@@ -1,6 +1,6 @@
 package com.example.javatodo.controller;
 
-import com.example.javatodo.dao.WorkDao;
+import com.example.javatodo.service.WorkService;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
@@ -19,8 +19,13 @@ public class AddTaskController {
     @FXML
     private DatePicker dueDateField;
 
+    private WorkService workService;
     private Runnable onSaved;
     private Stage dialogStage;
+
+    public void setWorkService(WorkService workService) {
+        this.workService = workService;
+    }
 
     public void setOnSaved(Runnable onSaved) {
         this.onSaved = onSaved;
@@ -44,7 +49,7 @@ public class AddTaskController {
             return;
         }
 
-        WorkDao.save(title, description, dueDateField.getValue());
+        workService.createWork(title, description, dueDateField.getValue());
         onSaved.run();
         dialogStage.close();
     }
