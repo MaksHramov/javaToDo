@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS works (
     title       VARCHAR(255) NOT NULL,
     description TEXT,
     assignee    VARCHAR(100),
+    category    VARCHAR(100),
     status      VARCHAR(50) NOT NULL DEFAULT 'NEW',
     due_date    DATE,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()

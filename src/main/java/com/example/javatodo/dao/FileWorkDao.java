@@ -12,11 +12,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.UnaryOperator;
 
 public class FileWorkDao implements WorkDao {
 
     private final Path file;
-    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
     public FileWorkDao(String filePath) {
         this.file = Path.of(filePath);
@@ -40,10 +43,10 @@ public class FileWorkDao implements WorkDao {
     }
 
     @Override
-    public synchronized void save(String title, String description, LocalDate dueDate) {
+    public synchronized void save(String title, String description, String assignee, String category, LocalDate dueDate) {
         List<Work> works = loadAll();
         long nextId = works.stream().mapToLong(Work::id).max().orElse(0) + 1;
-        works.add(new Work(nextId, title, description, dueDate, LocalDateTime.now(), "NEW"));
+        works.add(new Work(nextId, title, description, assignee, category, dueDate, LocalDateTime.now(), "NEW"));
         saveAll(works);
     }
 
@@ -56,11 +59,23 @@ public class FileWorkDao implements WorkDao {
 
     @Override
     public synchronized void updateStatus(long id, String status) {
+        update(id, work -> work.withStatus(status));
+    }
+
+    @Override
+    public synchronized void updateCategory(long id, String category) {
+        update(id, work -> work.withCategory(category));
+    }
+
+    public synchronized void replaceAll(List<Work> works) {
+        saveAll(new ArrayList<>(works));
+    }
+
+    private void update(long id, UnaryOperator<Work> change) {
         List<Work> works = loadAll();
         for (int i = 0; i < works.size(); i++) {
-            Work work = works.get(i);
-            if (work.id() == id) {
-                works.set(i, new Work(work.id(), work.title(), work.description(), work.dueDate(), work.createdAt(), status));
+            if (works.get(i).id() == id) {
+                works.set(i, change.apply(works.get(i)));
                 saveAll(works);
                 return;
             }
@@ -85,9 +100,5 @@ public class FileWorkDao implements WorkDao {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public synchronized void replaceAll(List<Work> works) {
-        saveAll(new ArrayList<>(works));
     }
 }

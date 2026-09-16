@@ -39,6 +39,8 @@ build/
 
 ### Docker / env ###
 .env
+src/main/resources/application.properties
+/application.properties
 
 ### Data files ###
 data/
