@@ -21,15 +21,8 @@ public class InMemoryWorkDao implements WorkDao {
     }
 
     @Override
-    public synchronized void save(String title, String description, LocalDate dueDate) {
-        WORKS.add(new Work(
-                nextId++,
-                title,
-                description,
-                dueDate,
-                LocalDateTime.now(),
-                "NEW"
-        ));
+    public synchronized void save(String title, String description, String assignee, String category, LocalDate dueDate) {
+        WORKS.add(new Work(nextId++, title, description, assignee, category, dueDate, LocalDateTime.now(), "NEW"));
     }
 
     @Override
@@ -39,18 +32,26 @@ public class InMemoryWorkDao implements WorkDao {
 
     @Override
     public synchronized void updateStatus(long id, String status) {
-        for (int i = 0; i < WORKS.size(); i++) {
-            Work work = WORKS.get(i);
-            if (work.id() == id) {
-                WORKS.set(i, new Work(work.id(), work.title(), work.description(), work.dueDate(), work.createdAt(), status));
-                return;
-            }
-        }
+        replace(id, work -> work.withStatus(status));
+    }
+
+    @Override
+    public synchronized void updateCategory(long id, String category) {
+        replace(id, work -> work.withCategory(category));
     }
 
     public synchronized void replaceAll(List<Work> works) {
         WORKS.clear();
         WORKS.addAll(works);
         nextId = works.stream().mapToLong(Work::id).max().orElse(0) + 1;
+    }
+
+    private void replace(long id, java.util.function.UnaryOperator<Work> update) {
+        for (int i = 0; i < WORKS.size(); i++) {
+            if (WORKS.get(i).id() == id) {
+                WORKS.set(i, update.apply(WORKS.get(i)));
+                return;
+            }
+        }
     }
 }
