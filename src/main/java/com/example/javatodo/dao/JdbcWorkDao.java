@@ -10,12 +10,26 @@ import java.util.List;
 
 public class JdbcWorkDao implements WorkDao {
 
+    public JdbcWorkDao() {
+        ensureColumns();
+    }
+
+    private void ensureColumns() {
+        try (var conn = DatabaseConnection.getConnection();
+             var stmt = conn.createStatement()) {
+            stmt.execute("ALTER TABLE works ADD COLUMN IF NOT EXISTS assignee VARCHAR(100)");
+            stmt.execute("ALTER TABLE works ADD COLUMN IF NOT EXISTS category VARCHAR(100)");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     @Override
     public List<Work> findAll() {
         try (var conn = DatabaseConnection.getConnection();
              var stmt = conn.createStatement();
              var rs = stmt.executeQuery(
-                     "SELECT id, title, description, due_date, created_at, status FROM works ORDER BY id DESC")) {
+                     "SELECT id, title, description, assignee, category, due_date, created_at, status FROM works ORDER BY id DESC")) {
             List<Work> works = new ArrayList<>();
             while (rs.next()) {
                 works.add(fromRow(rs));
@@ -27,13 +41,15 @@ public class JdbcWorkDao implements WorkDao {
     }
 
     @Override
-    public void save(String title, String description, LocalDate dueDate) {
+    public void save(String title, String description, String assignee, String category, LocalDate dueDate) {
         try (var conn = DatabaseConnection.getConnection();
              var stmt = conn.prepareStatement(
-                     "INSERT INTO works (title, description, status, due_date) VALUES (?, ?, 'NEW', ?)")) {
+                     "INSERT INTO works (title, description, assignee, category, status, due_date) VALUES (?, ?, ?, ?, 'NEW', ?)")) {
             stmt.setString(1, title);
             stmt.setString(2, description);
-            stmt.setObject(3, dueDate);
+            stmt.setString(3, assignee);
+            stmt.setString(4, category);
+            stmt.setObject(5, dueDate);
             stmt.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -63,18 +79,32 @@ public class JdbcWorkDao implements WorkDao {
         }
     }
 
+    @Override
+    public void updateCategory(long id, String category) {
+        try (var conn = DatabaseConnection.getConnection();
+             var stmt = conn.prepareStatement("UPDATE works SET category = ? WHERE id = ?")) {
+            stmt.setString(1, category);
+            stmt.setLong(2, id);
+            stmt.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void replaceAll(List<Work> works) {
         try (var conn = DatabaseConnection.getConnection()) {
             conn.createStatement().execute("DELETE FROM works");
             try (var stmt = conn.prepareStatement(
-                    "INSERT INTO works (id, title, description, status, due_date, created_at) VALUES (?, ?, ?, ?, ?, ?)")) {
+                    "INSERT INTO works (id, title, description, assignee, category, status, due_date, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")) {
                 for (Work work : works) {
                     stmt.setLong(1, work.id());
                     stmt.setString(2, work.title());
                     stmt.setString(3, work.description());
-                    stmt.setString(4, work.status());
-                    stmt.setObject(5, work.dueDate());
-                    stmt.setObject(6, work.createdAt());
+                    stmt.setString(4, work.assignee());
+                    stmt.setString(5, work.category());
+                    stmt.setString(6, work.status());
+                    stmt.setObject(7, work.dueDate());
+                    stmt.setObject(8, work.createdAt());
                     stmt.addBatch();
                 }
                 stmt.executeBatch();
@@ -91,6 +121,8 @@ public class JdbcWorkDao implements WorkDao {
                 rs.getLong("id"),
                 rs.getString("title"),
                 rs.getString("description"),
+                rs.getString("assignee"),
+                rs.getString("category"),
                 rs.getObject("due_date", LocalDate.class),
                 rs.getTimestamp("created_at").toLocalDateTime(),
                 rs.getString("status")

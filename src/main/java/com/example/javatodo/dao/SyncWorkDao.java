@@ -39,9 +39,9 @@ public class SyncWorkDao implements WorkDao {
     }
 
     @Override
-    public void save(String title, String description, LocalDate dueDate) {
+    public void save(String title, String description, String assignee, String category, LocalDate dueDate) {
         init();
-        jdbcDao.save(title, description, dueDate);
+        jdbcDao.save(title, description, assignee, category, dueDate);
         syncFromJdbc();
     }
 
@@ -56,6 +56,13 @@ public class SyncWorkDao implements WorkDao {
     public void updateStatus(long id, String status) {
         init();
         jdbcDao.updateStatus(id, status);
+        syncFromJdbc();
+    }
+
+    @Override
+    public void updateCategory(long id, String category) {
+        init();
+        jdbcDao.updateCategory(id, category);
         syncFromJdbc();
     }
 }
